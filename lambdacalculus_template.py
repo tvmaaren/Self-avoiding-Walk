@@ -62,3 +62,5 @@ class Application(LambdaTerm):
     def substitute(self, rules): raise NotImplementedError
 
     def reduce(self): raise NotImplementedError
+
+print('huts')
