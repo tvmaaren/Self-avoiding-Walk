@@ -30,7 +30,10 @@ class Variable(LambdaTerm):
         return self.symbol
 
     def substitute(self, rules):
-        raise NotImplementedError
+        try:
+            self.symbol = rules[self.symbol]
+        except:
+            None
 
 
 class Abstraction(LambdaTerm):
@@ -48,8 +51,9 @@ class Abstraction(LambdaTerm):
 
     def __call__(self, argument): raise NotImplementedError
 
-    def substitute(self, rules): raise NotImplementedError
-
+    def substitute(self, rules):
+        self.variable.substitute(rules)
+        self.body.substitute(rules)
 
 class Application(LambdaTerm):
     """Represents a lambda term of the form (M N)."""
@@ -64,6 +68,8 @@ class Application(LambdaTerm):
     def __str__(self):
         return "("+str(self.function)+")  "+str(self.argument)
 
-    def substitute(self, rules): raise NotImplementedError
+    def substitute(self, rules):
+        self.function.substitute(rules)
+        self.argument(rules)
 
-    def reduce(self): raise NotImplementedError
+    def reduce(self):raise NotImplementedError
