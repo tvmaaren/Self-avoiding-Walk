@@ -64,7 +64,7 @@ class SAW:
         self.path_coords = self.path_coords[:-n]
     def go_direction(self, direction):
         if(direction>= len(self.direction_vectors)):
-            raise Exception("Direction must be between 0 and {}, thus it can't be {}".format(len(direction_vectors)-1,direction))
+            raise Exception("Direction must be between 0 and {}, thus it can't be {}".format(len(self.direction_vectors)-1,direction))
         new_coord =tuple([x+y for x,y in zip(self.path_coords[-1],\
                 self.direction_vectors[direction])])
         if(self.visited[new_coord]):
@@ -73,8 +73,11 @@ class SAW:
         
     def plot_saw(self):
         if self.template == '2dsquare':
-            plt.figure()
-            ax = plt.axes()
+            # Setting correct graph size.
+            fig = plt.figure(dpi=300)
+            ax = fig.add_subplot(111)
+            ax.axis('off')
+            ax.set_aspect('equal')
             # Draw SAW
             for i in range(0,len(self.path_coords)-1):
                 begin = self.path_coords[i]
@@ -96,30 +99,26 @@ class SAW:
             x_range = np.arange(x_range[0]-1,x_range[1]+2)
             y_range = np.arange(y_range[0]-1,y_range[1]+2)
             data = np.array([[x,y] for x in x_range for y in y_range])
-            plt.scatter(data[:, 0], data[:, 1],linewidths=6)
-                       
+            plt.scatter(data[:, 0], data[:, 1],linewidths=3, color = 'k')
+            plt.scatter(0,0, color = 'r',linewidths=3)
+            
+            
             
         elif self.template == '2dtriangle':
             raise NotImplementedError("Plotting has not been implemented for '2dtriangle' SAW.")
         else:
             raise NotImplementedError("Plotting has not been implemented for {{template} type.")
 
-'''        
-g = SAW(1)
-g.go_direction(1)
-g.go_direction(2)
-g.go_direction(1)
-g.go_direction(2)
-g.go_direction(3)
-
-print(g.path_coords)
-g.plot_saw()
-'''
-
-s = SAW(10)
-s.go_direction(1)
-s.go_direction(2)
-s.go_direction(1)
-s.go_direction(2)
-s.go_direction(2)
-s.plot_saw()
+     
+# Bug:
+h = SAW(1)
+h.go_direction(1)
+h.go_direction(2)
+h.go_direction(3)
+h.go_direction(0)
+h.go_direction(0)
+h.go_direction(1)
+h.go_direction(1)
+h.go_direction(1)
+# Krijgt als error dat punt al bezocht is, terwijl met een render of h.path_coords
+#                                         te zien is dat dit niet het geval is. 
