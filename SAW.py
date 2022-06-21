@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 class SAW:
     def __init__(self, N,template="2dsquare", path_coords=[],direction_vectors=None):
@@ -25,6 +26,7 @@ class SAW:
             path_coords.insert(0,(0,)*self.dimensions)
         self.path_coords = path_coords
         self.N = N
+        self.template = template
         
         self.visited = np.zeros((2*N+1,)*self.dimensions,dtype =bool)
         self.max_dimensions = np.full((self.dimensions),N)
@@ -68,4 +70,56 @@ class SAW:
         if(self.visited[new_coord]):
             raise Exception("Point {} has already been visited".format(new_coord))
         self.append([new_coord])
+        
+    def plot_saw(self):
+        if self.template == '2dsquare':
+            plt.figure()
+            ax = plt.axes()
+            # Draw SAW
+            for i in range(0,len(self.path_coords)-1):
+                begin = self.path_coords[i]
+                end = self.path_coords[i+1]
+                x_range = [begin[0],end[0]]
+                y_range = [begin[1],end[1]]
+                ax.plot(x_range,y_range,color = 'k')
+            # Draw grid
+            x = np.array([],dtype = int)
+            for i in range(0,len(self.path_coords)):
+                x = np.append(x,self.path_coords[i][0])
+            x_range = (min(x),max(x))
+            
+            y = np.array([],dtype = int)
+            for i in range(0,len(self.path_coords)):
+                y = np.append(y,self.path_coords[i][1])
+            y_range = (min(y),max(y))
+            
+            x_range = np.arange(x_range[0]-1,x_range[1]+2)
+            y_range = np.arange(y_range[0]-1,y_range[1]+2)
+            data = np.array([[x,y] for x in x_range for y in y_range])
+            plt.scatter(data[:, 0], data[:, 1],linewidths=6)
+                       
+            
+        elif self.template == '2dtriangle':
+            raise NotImplementedError("Plotting has not been implemented for '2dtriangle' SAW.")
+        else:
+            raise NotImplementedError("Plotting has not been implemented for {{template} type.")
 
+'''        
+g = SAW(1)
+g.go_direction(1)
+g.go_direction(2)
+g.go_direction(1)
+g.go_direction(2)
+g.go_direction(3)
+
+print(g.path_coords)
+g.plot_saw()
+'''
+
+s = SAW(10)
+s.go_direction(1)
+s.go_direction(2)
+s.go_direction(1)
+s.go_direction(2)
+s.go_direction(2)
+s.plot_saw()
