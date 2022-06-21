@@ -20,6 +20,7 @@ class SAW:
             direction_vectors = [(-1,0,1),(0,1,1),(1,1,0),(1,0,-1),(0,-1,-1),(-1,-1,0)]
 
         self.direction_vectors = direction_vectors
+        self.directions = len(direction_vectors)
         self.dimensions = len(direction_vectors[0])
         if(len(path_coords)==0 or path_coords[0]!=(0,)*self.dimensions):
             path_coords.insert(0,(0,)*self.dimensions)
@@ -51,21 +52,30 @@ class SAW:
             self.visited[new_coord]=True
 
                      
-        if isinstance(new_coords, int):
-            self.N+=1
-        else:
-            self.N+=len(new_coords)
 
     def pop(self,n):
         to_be_removed =  np.array(self.path_coords[-n:]).T.tolist()
         self.visited[tuple(to_be_removed)]=False
         self.path_coords = self.path_coords[:-n]
     def go_direction(self, direction):
-        if(direction>= len(self.direction_vectors)):
-            raise Exception("Direction must be between 0 and {}, thus it can't be {}".format(len(direction_vectors)-1,direction))
+        if(direction>= self.directions):
+            raise Exception("Direction must be between 0 and {}, thus it can't be {}".format(self.directions-1,direction))
         new_coord =tuple([x+y for x,y in zip(self.path_coords[-1],\
                 self.direction_vectors[direction])])
         if(self.visited[new_coord]):
             raise Exception("Point {} has already been visited".format(new_coord))
         self.append([new_coord])
-
+    def possible_walks(self):
+        if(len(self.path_coords)-1>=self.N):
+            return 1
+        count = 0
+        for direction in range(self.directions):
+            try:
+                self.go_direction(direction)
+                count+= self.possible_walks()
+                self.pop(1)
+            except:
+                pass
+        return count
+s = SAW(3,'2dtriangle')
+print(s.visited)
