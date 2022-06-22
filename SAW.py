@@ -1,6 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import math
 
 class SAW:
     def __init__(self, N,template="2dsquare", path_coords=[],direction_vectors=None):
@@ -110,46 +109,57 @@ class SAW:
             ax.set_aspect('equal')
             # Draw SAW
             start = (0,0)
-            x_max = 0
-            x_min = 0
-            y_max = 0
-            y_min = 0
+            y_range = x_range = np.array([0])
             for i in range(0,len(self.path_coords)-1):
                 diff = self.path_coords[i+1] - self.path_coords[i]
                 if (diff-self.direction_vectors[0]).all():
-                    end = (start[0] - 0.5, start[1] + 0.5*math.sqrt(3))
+                    end = (start[0] - 0.5, start[1] + 0.5*np.sqrt(3))
+                    x_range = np.append(x_range, x_range[-1] - 1)
+                    y_range = np.append(y_range, y_range[-1] + 1)
+                    
                 elif (diff-self.direction_vectors[1]).all():
-                    end = (start[0] + 0.5, start[1] + 0.5*math.sqrt(3))
+                    end = (start[0] + 0.5, start[1] + 0.5*np.sqrt(3))
+                    x_range = np.append(x_range, x_range[-1] + 1)
+                    y_range = np.append(y_range, y_range[-1] + 1)
+                    
                 elif (diff-self.direction_vectors[2]).all():
                     end = (start[0] + 1, start[1] + 0)
+                    x_range = np.append(x_range, x_range[-1] + 2)
+                    
                 elif (diff-self.direction_vectors[3]).all():
-                    end = (start[0] + 0.5, start[1] - 0.5*math.sqrt(3))
+                    end = (start[0] + 0.5, start[1] - 0.5*np.sqrt(3))
+                    x_range = np.append(x_range, x_range[-1] + 1)
+                    y_range = np.append(y_range, y_range[-1] - 1)
+                    
                 elif (diff-self.direction_vectors[4]).all():
-                    end = (start[0] - 0.5, start[1] - 0.5*math.sqrt(3))
+                    end = (start[0] - 0.5, start[1] - 0.5*np.sqrt(3))
+                    x_range = np.append(x_range, x_range[-1] - 1)
+                    y_range = np.append(y_range, y_range[-1] - 1)
+                    
                 else:
                     end = (start[0] - 1, start[1])
+                    x_range = np.append(x_range, x_range[-1] - 2)
+                    
                 ax.plot([start[0],end[0]],[start[1],end[1]],color = 'k')
                 start = end
-                
-                if end[0] > x_max:
-                    x_max = end[0]
-                elif end[0] < x_min:
-                    x_min = end[0]
-                if end[1] > y_max:
-                    y_max = end[1]
-                elif end[1] < y_min:
-                    y_min = end[1]
             
-            # Draw grid
+            # Draw grid    
+            x_min = min(x_range)-1
+            x_max = max(x_range)+1
+            y_min = min(y_range)-1
+            y_max = max(y_range)+1
+            
+            for i in range(y_min,y_max+1):
+                if i % 2 == 0:
+                    x_range = np.array([0.5*x for x in range(x_min,x_max+1) if x % 2 == 0])
+                    
+                else:
+                    x_range = np.array([0.5*x for x in range(x_min,x_max+1) if x % 2 == 1])
+                    
+                data = np.array([[x,i*0.5*np.sqrt(3)] for x in x_range])
+                plt.scatter(data[:, 0], data[:, 1],linewidths=3, color = 'k')
+            
             plt.scatter(0,0, color = 'r',linewidths=3)
             
         else:
-            raise NotImplementedError("Plotting has not been implemented for {} type.".format(self.template))
-
-s = SAW(1,'2dtriangle')
-
-s.go_direction(0)
-s.go_direction(1)
-s.go_direction(0)
-s.go_direction(2)
-s.go_direction(3)
+            raise NotImplementedError("Plotting has not been implemented for '{}' type.".format(self.template))
