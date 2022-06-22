@@ -2,81 +2,128 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 class SAW:
-    def __init__(self, N,template="2dsquare", path_coords=[],direction_vectors=None):
+    #template:          The template lattice that will be used. Possible values are
+    #                   "2dsquare","3dcubic","4dcubic","2dhoneycomb","2dtriangle" and None.
+    #                   When not using a template set this to None
+    #direction_vectors: List of direction vectors for the lattice. When using a template this
+    #                   must be None
+    def __init__(self,template="2dsquare",direction_vectors=None):
+
+        #One and only one of template and direction_vectors must be equal to None. If  they would
+        #both be None, then the class has no information on lattice it should have, but if they would
+        #both be unequal to None, the two variables could contain conflicting information.
         if not ((template==None) ^ (direction_vectors==None)):
             raise Exception("One and only one of template and direction_vectors must be equal to \"None\"")
+
+        #Goes through al the templates and sets the direction_vectors. The order of the directions goes
+        #counter-clockwise for the 2d lattices.
         if(template=="2dsquare"):
-            direction_vectors = [(0,1),(1,0),(0,-1),(-1,0)]
+            direction_vectors = [(1,0),(0,1),(-1,0),(0,-1)]
         elif(template=="3dcubic"):
-            direction_vectors = [(0,0,1),(0,1,0),(0,0,-1),(0,-1,0),(1,0,0),(-1,0,0)]
+            direction_vectors = [(0,1,0),(0,0,1),(0,-1,0),(0,0,-1),(1,0,0),(-1,0,0)]
         elif(template=="4dcubic"):
             direction_vectors =\
-            [(0,0,0,1),(0,0,1,0),(0,0,0,-1),(0,0,-1,0),(0,1,0,0),(0,-1,0,0),(1,0,0,0)\
+            [(0,0,1,0),(0,0,0,1),(0,0,-1,0),(0,0,0,-1),(0,1,0,0),(0,-1,0,0),(1,0,0,0)\
                     ,(-1,0,0,0)]
         elif(template=="2dhoneycomb"):
             raise NotImplementedError("Template 2dhoneycomb is not implemented yet")
-            
-            #direction_vectors = [(-1,0,1),(0,1,1),(1,1,0),(1,0,-1),(0,-1,-1),(-1,-1,0)]
         elif(template=="2dtriangle"):
-            direction_vectors = [(-1,0,1),(0,1,1),(1,1,0),(1,0,-1),(0,-1,-1),(-1,-1,0)]
+            #The direction_vectors for the 2dtriangle are the same as how they where
+            #described in the report
+            direction_vectors = [(1,1,0),(0,1,1),(-1,0,1),(-1,-1,0),(0,-1,-1),(1,0,-1)]
 
+        #Stores the information provided to the __init__ function in the class
         self.direction_vectors = direction_vectors
         self.directions = len(direction_vectors)
         self.dimensions = len(direction_vectors[0])
-        if(len(path_coords)==0 or path_coords[0]!=(0,)*self.dimensions):
-            path_coords.insert(0,(0,)*self.dimensions)
-        self.path_coords = path_coords
-        self.N = N
+        self.path_coords = [(0,)*self.dimensions]#The path should always start at th origin
         self.template = template
-        
-        self.visited = np.zeros((2*N+1,)*self.dimensions,dtype =bool)
-        self.max_dimensions = np.full((self.dimensions),N)
-        self.min_dimensions = np.full((self.dimensions),-N)
 
-        self.visited[(0,)*self.dimensions]=True
-        path_coords_transposed = np.array(path_coords).T.tolist()
-        self.visited[tuple(path_coords_transposed)]=True
-    def append(self,new_coords):
-        self.path_coords = np.append(self.path_coords, new_coords,0)
-        for new_coord in new_coords:
-            self.expand_grid(new_coord)
-            self.visited[new_coord]=True
+        #self.visited is a multidimensional numpy array that has coordinates as index. For each
+        #coordinate it gives a True if the path passes through that point and a false otherwise.
+        self.visited = np.zeros((2*10+1,)*self.dimensions,dtype =bool)
+
+        #For each dimension it gives the maximum and minimum coordinate. In the beginning this
+        #is 10 and -10, because this is how the self.visited array is defined.
+        self.max_dimensions = np.full((self.dimensions),10)
+        self.min_dimensions = np.full((self.dimensions),-10)
+
+        self.visited[(0,)*self.dimensions]=True #The origin must always be visited
 
                      
 
+    #remove n steps at the end of the walk
+    #n:     The amount of steps that will be removed
     def pop(self,n):
+
+        #makes sure the origin alwes gets preserved
+        if(n> len(self.path_coords)-1):
+            raise Exception("It is illegal to remove the origin")
+
         to_be_removed =  np.array(self.path_coords[-n:]).T.tolist()
         self.visited[tuple(to_be_removed)]=False
         self.path_coords = self.path_coords[:-n]
-    def expand_grid(self,coord):
+
+    #Take a step in a given direction
+    #direction:     Is an index of direction_vectors. It is the direction of the step
+    def go_direction(self, direction):
+
+        #check if it is a valid direction
+        if(direction>= self.directions):
+            raise Exception("Direction must be between 0 and {}, thus it can't be {}".format(self.directions-1,direction))
+
+        #Add the corresponding direction vector to the head of walk
+        new_coord =tuple([x+y for x,y in zip(self.path_coords[-1],\
+                self.direction_vectors[direction])])
+        
+        #Enlarge the the grid if new_coord false outside of it
         for dim in range(self.dimensions):
-            if(coord[dim]> self.max_dimensions[dim]):
+            if(new_coord[dim]> self.max_dimensions[dim]):
+                #it assumes that new_coord is connected to a point inside of the grid,
+                #thus it only has to make the max_dimension one bigger.
                 self.max_dimensions[dim]+=1
-                #Because we assume that this point is connected to a point
-                #that is in the lattice, we can assume we only need to add
-                #one row
                 self.visited =np.insert(self.visited, [self.max_dimensions[dim]], False,dim)
-            if(coord[dim]< self.min_dimensions[dim]):
+            if(new_coord[dim]< self.min_dimensions[dim]):
+                #it assumes that new_coord is connected to a point inside of the grid,
+                #thus it only has to make the min_dimension one smaller.
                 self.min_dimensions[dim]-=1
                 self.visited =np.insert(self.visited, [self.min_dimensions[dim]+1], False,dim)
 
-    def go_direction(self, direction):
-        if(direction>= self.directions):
-            raise Exception("Direction must be between 0 and {}, thus it can't be {}".format(self.directions-1,direction))
-        new_coord =tuple([x+y for x,y in zip(self.path_coords[-1],\
-                self.direction_vectors[direction])])
-        self.expand_grid(new_coord)
+        #Checks if the new point has already been visited
         if(self.visited[new_coord]):
             raise Exception("Point {} has already been visited".format(new_coord))
-        self.append([new_coord])
-    def possible_walks(self):
-        if(len(self.path_coords)-1>=self.N):
+
+        #add new_coord to path_coords
+        self.path_coords = np.append(self.path_coords, [new_coord],0)
+
+        self.visited[new_coord]=True
+
+    #Calculate the possible walks of specified length
+    #N:  The length of a walk.
+    def possible_walks(self,N):
+        
+        #If it already is a walk of length N, there is
+        #only one possibility
+        if(len(self.path_coords)-1==N):
             return 1
-        count = 0
+        
+        #If the length of the walk is bigger than N
+        #there are no possibilities
+        elif(len(self.path_coords)-1>=N):
+            return 0
+
+        count = 0 #possibility counter
+
+        #Tries every direction from the current point
         for direction in range(self.directions):
             try:
+                #This will lead to an error if that point already has been visited
                 self.go_direction(direction)
-                count+= self.possible_walks()
+
+                #If no error occures it counts the possible walks from this point
+                count+= self.possible_walks(N)
+
+                #Goes back to the point that it started at
                 self.pop(1)
             except:
                 pass
