@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import math
 
 class SAW:
     def __init__(self, N,template="2dsquare", path_coords=[],direction_vectors=None):
@@ -101,24 +102,47 @@ class SAW:
             data = np.array([[x,y] for x in x_range for y in y_range])
             plt.scatter(data[:, 0], data[:, 1],linewidths=3, color = 'k')
             plt.scatter(0,0, color = 'r',linewidths=3)
-            
-            
-            
+               
         elif self.template == '2dtriangle':
-            raise NotImplementedError("Plotting has not been implemented for '2dtriangle' SAW.")
+            fig = plt.figure(dpi=300)
+            ax = fig.add_subplot(111)
+            ax.axis('off')
+            ax.set_aspect('equal')
+            # Draw SAW
+            start = (0,0)
+            x_max = 0
+            x_min = 0
+            y_max = 0
+            y_min = 0
+            for i in range(0,len(self.path_coords)-1):
+                diff = self.path_coords[i+1] - self.path_coords[i]
+                if (diff-self.direction_vectors[0]).all():
+                    end = (start[0] - 0.5, start[1] + 0.5*math.sqrt(3))
+                elif (diff-self.direction_vectors[1]).all():
+                    end = (start[0] + 0.5, start[1] + 0.5*math.sqrt(3))
+                elif (diff-self.direction_vectors[2]).all():
+                    end = (start[0] + 1, start[1] + 0)
+                elif (diff-self.direction_vectors[3]).all():
+                    end = (start[0] + 0.5, start[1] - 0.5*math.sqrt(3))
+                elif (diff-self.direction_vectors[4]).all():
+                    end = (start[0] - 0.5, start[1] - 0.5*math.sqrt(3))
+                else:
+                    end = (start[0] - 1, start[1])
+                ax.plot([start[0],end[0]],[start[1],end[1]],color = 'k')
+                start = end
+                
+                if end[0] > x_max:
+                    x_max = end[0]
+                elif end[0] < x_min:
+                    x_min = end[0]
+                if end[1] > y_max:
+                    y_max = end[1]
+                elif end[1] < y_min:
+                    y_min = end[1]
+            
+            # Draw grid
+            plt.scatter(0,0, color = 'r',linewidths=3)
+            
         else:
-            raise NotImplementedError("Plotting has not been implemented for {{template} type.")
+            raise NotImplementedError("Plotting has not been implemented for {self.template} type.")
 
-     
-# Bug:
-h = SAW(1)
-h.go_direction(1)
-h.go_direction(2)
-h.go_direction(3)
-h.go_direction(0)
-h.go_direction(0)
-h.go_direction(1)
-h.go_direction(1)
-h.go_direction(1)
-# Krijgt als error dat punt al bezocht is, terwijl met een render of h.path_coords
-#                                         te zien is dat dit niet het geval is. 
