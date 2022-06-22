@@ -138,14 +138,19 @@ class SAW:
             ax = fig.add_subplot(111)
             ax.axis('off')
             ax.set_aspect('equal')
+            
             # Draw SAW
             for i in range(0,len(self.path_coords)-1):
+                # Each segment of the SAW is drawn on its own.
                 begin = self.path_coords[i]
                 end = self.path_coords[i+1]
                 x_range = [begin[0],end[0]]
                 y_range = [begin[1],end[1]]
                 ax.plot(x_range,y_range,color = 'k')
             # Draw grid
+            # To get the minimum and maximum x-values the walk visits, we
+            # add all values visited values to an array, then search for
+            # min and max using builtin functions.
             x = np.array([],dtype = int)
             for i in range(0,len(self.path_coords)):
                 x = np.append(x,self.path_coords[i][0])
@@ -156,21 +161,36 @@ class SAW:
                 y = np.append(y,self.path_coords[i][1])
             y_range = (min(y),max(y))
             
+            # We now use a scatterplot to get the grid dots we desire.
             x_range = np.arange(x_range[0]-1,x_range[1]+2)
             y_range = np.arange(y_range[0]-1,y_range[1]+2)
             data = np.array([[x,y] for x in x_range for y in y_range])
             plt.scatter(data[:, 0], data[:, 1],linewidths=3, color = 'k')
+            
+            # Finally, we mark the center point in our grid wih a red dot.
             plt.scatter(0,0, color = 'r',linewidths=3)
                
         elif self.template == '2dtriangle':
+            # Setting correct graph size.
             fig = plt.figure(dpi=300)
             ax = fig.add_subplot(111)
             ax.axis('off')
             ax.set_aspect('equal')
+            
             # Draw SAW
+            # We define a point 'start', since self.path_coords isn't in
+            # 2 dimensions.
             start = (0,0)
+            
+            # We initialize two arrays to track visited x,y values.
             y_range = x_range = np.array([0])
             for i in range(0,len(self.path_coords)-1):
+                # We now use np.allclose() to check which direction vector
+                # was used.
+                # For each direction vector, we use trigonometry to translate
+                # it into a transformation in (x,y).
+                # x_coördinates are multiplied times two, to make sure we only
+                # deal with integers later on.
                 diff = self.path_coords[i+1] - self.path_coords[i]
                 if np.allclose(diff, self.direction_vectors[0]):
                     end = (start[0] + 1, start[1] + 0)
@@ -199,28 +219,35 @@ class SAW:
                     end = (start[0] + 0.5, start[1] - 0.5*np.sqrt(3))
                     x_range = np.append(x_range, x_range[-1] + 1)
                     y_range = np.append(y_range, y_range[-1] - 1)
-                    
+                
+                # Using the obtained coordinates, we now plot the segment of
+                # the SAW.
                 ax.plot([start[0],end[0]],[start[1],end[1]],color = 'k')
                 start = end
             
-            # Draw grid    
+            # Draw grid, using x_range and y_range to find necessary size.
             x_min = min(x_range)-1
             x_max = max(x_range)+1
             y_min = min(y_range)-1
             y_max = max(y_range)+1
             
             for i in range(y_min,y_max+1):
+                # We now plot the grid in which the SAW sits. For each
+                # horizontal set of points, we determine if they're even or
+                # uneven and change x_range accordingly.
                 if i % 2 == 0:
                     x_range = np.array([0.5*x for x in range(x_min,x_max+1) if x % 2 == 0])
                     
                 else:
                     x_range = np.array([0.5*x for x in range(x_min,x_max+1) if x % 2 == 1])
-                    
+                
+                # We now plot our grid points in a similar way to the grid
+                # points in '2dsquare', just one line at a time in this case.
                 data = np.array([[x,i*0.5*np.sqrt(3)] for x in x_range])
                 plt.scatter(data[:, 0], data[:, 1],linewidths=3, color = 'k')
             
+            # Finally, we mark the center point in our grid wih a red dot.
             plt.scatter(0,0, color = 'r',linewidths=3)
             
         else:
             raise NotImplementedError("Plotting has not been implemented for {} type.".format(self.template))
-        plt.show()
