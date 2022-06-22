@@ -131,7 +131,7 @@ class SAW:
                 pass
         return count
             
-    def plot_saw(self):
+    def plot(self):
         if self.template == '2dsquare':
             # Setting correct graph size.
             fig = plt.figure(dpi=300)
