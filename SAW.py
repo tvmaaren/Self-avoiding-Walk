@@ -220,6 +220,4 @@ class SAW:
             plt.scatter(0,0, color = 'r',linewidths=3)
             
         else:
-<<<<<<< HEAD
             raise NotImplementedError("Plotting has not been implemented for '{}' type.".format(self.template))
->>>>>>> refs/remotes/origin/main
