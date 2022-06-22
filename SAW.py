@@ -144,7 +144,7 @@ class SAW:
             plt.scatter(0,0, color = 'r',linewidths=3)
             
         else:
-            raise NotImplementedError("Plotting has not been implemented for {self.template} type.")
+            raise NotImplementedError("Plotting has not been implemented for {} type.".format(self.template))
 
 s = SAW(1,'2dtriangle')
 
@@ -153,5 +153,3 @@ s.go_direction(1)
 s.go_direction(0)
 s.go_direction(2)
 s.go_direction(3)
-
-s.plot_saw()
