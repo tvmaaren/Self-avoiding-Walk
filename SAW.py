@@ -170,33 +170,33 @@ class SAW:
             y_range = x_range = np.array([0])
             for i in range(0,len(self.path_coords)-1):
                 diff = self.path_coords[i+1] - self.path_coords[i]
-                if (diff-self.direction_vectors[0]).all():
-                    end = (start[0] - 0.5, start[1] + 0.5*np.sqrt(3))
-                    x_range = np.append(x_range, x_range[-1] - 1)
-                    y_range = np.append(y_range, y_range[-1] + 1)
+                if np.allclose(diff, self.direction_vectors[0]):
+                    end = (start[0] + 1, start[1] + 0)
+                    x_range = np.append(x_range, x_range[-1] + 2)
                     
-                elif (diff-self.direction_vectors[1]).all():
+                elif np.allclose(diff, self.direction_vectors[1]):
                     end = (start[0] + 0.5, start[1] + 0.5*np.sqrt(3))
                     x_range = np.append(x_range, x_range[-1] + 1)
                     y_range = np.append(y_range, y_range[-1] + 1)
                     
-                elif (diff-self.direction_vectors[2]).all():
-                    end = (start[0] + 1, start[1] + 0)
-                    x_range = np.append(x_range, x_range[-1] + 2)
+                elif np.allclose(diff, self.direction_vectors[2]):
+                    end = (start[0] - 0.5, start[1] + 0.5*np.sqrt(3))
+                    x_range = np.append(x_range, x_range[-1] - 1)
+                    y_range = np.append(y_range, y_range[-1] + 1)
                     
-                elif (diff-self.direction_vectors[3]).all():
-                    end = (start[0] + 0.5, start[1] - 0.5*np.sqrt(3))
-                    x_range = np.append(x_range, x_range[-1] + 1)
-                    y_range = np.append(y_range, y_range[-1] - 1)
+                elif np.allclose(diff, self.direction_vectors[3]):
+                    end = (start[0] - 1, start[1])
+                    x_range = np.append(x_range, x_range[-1] - 2)
                     
-                elif (diff-self.direction_vectors[4]).all():
+                elif np.allclose(diff, self.direction_vectors[4]):
                     end = (start[0] - 0.5, start[1] - 0.5*np.sqrt(3))
                     x_range = np.append(x_range, x_range[-1] - 1)
                     y_range = np.append(y_range, y_range[-1] - 1)
                     
                 else:
-                    end = (start[0] - 1, start[1])
-                    x_range = np.append(x_range, x_range[-1] - 2)
+                    end = (start[0] + 0.5, start[1] - 0.5*np.sqrt(3))
+                    x_range = np.append(x_range, x_range[-1] + 1)
+                    y_range = np.append(y_range, y_range[-1] - 1)
                     
                 ax.plot([start[0],end[0]],[start[1],end[1]],color = 'k')
                 start = end
