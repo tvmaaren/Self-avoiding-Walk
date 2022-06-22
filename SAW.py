@@ -31,6 +31,8 @@ class SAW:
             #The direction_vectors for the 2dtriangle are the same as how they where
             #described in the report
             direction_vectors = [(1,1,0),(0,1,1),(-1,0,1),(-1,-1,0),(0,-1,-1),(1,0,-1)]
+        elif(template!=None):
+            raise Exception("Template \"{}\" does not exist".format(template))
 
         #Stores the information provided to the __init__ function in the class
         self.direction_vectors = direction_vectors
@@ -220,4 +222,5 @@ class SAW:
             plt.scatter(0,0, color = 'r',linewidths=3)
             
         else:
-            raise NotImplementedError("Plotting has not been implemented for '{}' type.".format(self.template))
+            raise NotImplementedError("Plotting has not been implemented for {} type.".format(self.template))
+        plt.show()
