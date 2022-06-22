@@ -224,7 +224,3 @@ class SAW:
         else:
             raise NotImplementedError("Plotting has not been implemented for {} type.".format(self.template))
         plt.show()
-s = SAW("2dtriangle")
-s.go_direction(2)
-print(s.path_coords)
-s.plot_saw()
