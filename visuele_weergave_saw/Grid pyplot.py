@@ -28,4 +28,6 @@ def saw_graphic_square(moves):
     plt.scatter(middenpunt[0], middenpunt[1], color = 'r',linewidths=6)
     plt.show()
 
-saw_graphic_square('huts')
+
+if __name__ == "__main__":
+    saw_graphic_square('huts')

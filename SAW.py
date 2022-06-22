@@ -146,3 +146,12 @@ class SAW:
         else:
             raise NotImplementedError("Plotting has not been implemented for {self.template} type.")
 
+s = SAW(1,'2dtriangle')
+
+s.go_direction(0)
+s.go_direction(1)
+s.go_direction(0)
+s.go_direction(2)
+s.go_direction(3)
+
+s.plot_saw()
