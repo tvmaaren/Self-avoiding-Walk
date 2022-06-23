@@ -20,11 +20,7 @@ class SAW:
         if(template=="2dsquare"):
             direction_vectors = [(1,0),(0,1),(-1,0),(0,-1)]
         elif(template=="3dcubic"):
-            direction_vectors = [(0,1,0),(0,0,1),(0,-1,0),(0,0,-1),(1,0,0),(-1,0,0)]
-        elif(template=="4dcubic"):
-            direction_vectors =\
-            [(0,0,1,0),(0,0,0,1),(0,0,-1,0),(0,0,0,-1),(0,1,0,0),(0,-1,0,0),(1,0,0,0)\
-                    ,(-1,0,0,0)]
+            direction_vectors = [(1,0,0),(0,1,0),(-1,0),(0,-1,0),(0,0,-1),(0,0,1)]
         elif(template=="2dhoneycomb"):
             raise NotImplementedError("Template 2dhoneycomb is not implemented yet")
         elif(template=="2dtriangle"):
