@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 class SAW:
     #template:          The template lattice that will be used. Possible values are
-    #                   "2dsquare","3dcubic","4dcubic","2dhoneycomb","2dtriangle" and None.
+    #                   "2dsquare","3dcubic","2dhoneycomb","2dtriangle" and None.
     #                   When not using a template set this to None
     #direction_vectors: List of direction vectors for the lattice. When using a template this
     #                   must be None
@@ -52,7 +52,7 @@ class SAW:
 
     #remove n steps at the end of the walk
     #n:     The amount of steps that will be removed
-    def pop(self,n):
+    def pop(self,n=1):
 
         #makes sure the origin alwes gets preserved
         if(n> len(self.path_coords)-1):
@@ -126,6 +126,17 @@ class SAW:
             except:
                 pass
         return count
+    #Calculate the possible walks of specified length faster
+    #Only works if the walk is at the origin
+    #N:  The length of a walk.
+    def possible_walks_faster(self,N):
+        if(len(self.path_coords)!=1):
+            raise Exception("The path must be at the origin for the possible_walks_faster function to work")
+        self.go_direction(0)
+        ret = self.possible_walks(N) * self.directions
+        self.pop()
+        return(ret)
+
             
     def plot(self):
         if self.template == '2dsquare':
